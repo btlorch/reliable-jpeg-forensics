@@ -6,7 +6,7 @@ Code for "Benedikt Lorch, Anatol Maier, Christian Riess. *[Reliable JPEG Forensi
 
 ## Prerequisites
 
-* Python packages (available from PyPI): `pip install numpy pandas tqdm h5py matplotlib Pillow imageio`
+* Python packages (available from PyPI): `pip install numpy pandas tqdm h5py matplotlib Pillow imageio tifffile imagecodecs`
 * *DCT coefficient decoder* for decoding DCT coefficients from JPEG-compressed images. Please follow the instructions from the [GitHub repository](https://github.com/btlorch/dct-coefficient-decoder).
 * Optional: To create JPEG images with custom compression settings, open `utils/constants.py` and change the paths to your local *cjpeg* and *djpeg* executables. 
 
@@ -100,3 +100,7 @@ df[(df["crop"] == "full_resolution") & (df["qf2_train"] != df["qf2_test"])] \
 
 * Image *r0bf7f938t.TIF* appears to be incomplete. We found that different system configurations may decode this image differently.
 * At test time, we use Monte Carlo sampling to approximate the predictive distribution. This involves drawing random samples from the weight posterior. 
+
+## Known issues
+
+* Later versions of `imageio` raise warnings while decoding TIF files. This can be resolved with `pip install tifffile imagecodecs`.
