@@ -58,6 +58,8 @@ class VariationalLogisticRegressionIsotropicPrior(LogisticRegression):
             X = self._add_intercept(X)
 
         N, M = X.shape
+
+        # If alpha is not fixed, calculate posterior over alpha
         if hasattr(self, "a0"):
             self.a = self.a0 + 0.5 * M
 
@@ -134,18 +136,23 @@ class VariationalLogisticRegressionIsotropicPrior(LogisticRegression):
     @property
     def alpha(self):
         if hasattr(self, "_alpha"):
+            # If alpha is given, use alpha
             return self._alpha
+
+        elif self.w_mean is None:
+            # alpha is not given, and we have not calculated the weight posterior yet
+            # Hence, take b of prior.
+            self.b = self.b0
+
         else:
-            try:
-                # Eq. (10.179)
-                if self._fit_intercept:
-                    self.b = self.b0 + 0.5 * (np.sum(self.w_mean[1:] ** 2) + np.trace(self.w_var[1:, 1:]))
-                else:
-                    self.b = self.b0 + 0.5 * (np.sum(self.w_mean ** 2) + np.trace(self.w_var))
-            except AttributeError:
-                # If we haven't computed the moment of the posterior over w yet, take b of prior.
-                self.b = self.b0
-            return self.a / self.b
+            # Calculate posterior
+            # Eq. (10.179)
+            if self._fit_intercept:
+                self.b = self.b0 + 0.5 * (np.sum(self.w_mean[1:] ** 2) + np.trace(self.w_var[1:, 1:]))
+            else:
+                self.b = self.b0 + 0.5 * (np.sum(self.w_mean ** 2) + np.trace(self.w_var))
+
+        return self.a / self.b
 
     def predict(self, X):
         """
